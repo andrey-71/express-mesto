@@ -1,7 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const routes = require('./routes');
 // const mongoose = require('mongoose');
-// const routes = require('./routes');
+
 const {PORT = 3000} = process.env;
 const test = require('./test.json'); //del
 
@@ -9,6 +10,8 @@ const test = require('./test.json'); //del
 const app = express();
 // Сборка данных в JSON-формат
 app.use(bodyParser.json());
+// Подключение роутов
+app.use(routes);
 
 //--refactor
 app.get('/users', (req, res) => {
@@ -27,8 +30,6 @@ app.post('/users', (req, res) => {
 })
 //--
 
-
-// app.use(routes);
 
 // Подключение к БД
 // mongoose.connect('mongodb://localhost:27017/mestodb', {
