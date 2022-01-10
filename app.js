@@ -11,11 +11,20 @@ app.use(bodyParser.json());
 app.use(routes);
 
 
+// Мидлвэр для временного решения получения И хранения id пользователя
+app.use((req, res, next) => {
+  req.user = {
+    _id: '61dc4e3b765a8d5d58a3f84a'
+  };
+
+  next();
+});
+
+
 // Подключение к БД
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true
 });
-
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

@@ -15,9 +15,7 @@ const getUser = (req, res) => {
         res.status(200).send(user);
       }
     })
-    .catch(err => {
-      console.log(err);
-    })
+    .catch(() => res.status(500).send({message: 'На сервере произошла ошибка'}))
 };
 
 const createUser = (req, res) => {
