@@ -7,19 +7,20 @@ const {PORT = 3000} = process.env;
 const app = express();
 // Сборка данных в JSON-формат
 app.use(bodyParser.json());
-// Подключение роутов
-app.use(routes);
 
 
 // Мидлвэр для временного решения получения И хранения id пользователя
 app.use((req, res, next) => {
   req.user = {
-    _id: '61dc4e3b765a8d5d58a3f84a'
+    _id: '61ddbe0069dfc16101d36e4b'
   };
 
   next();
 });
 
+
+// Подключение роутов
+app.use(routes);
 
 // Подключение к БД
 mongoose.connect('mongodb://localhost:27017/mestodb', {
