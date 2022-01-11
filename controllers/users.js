@@ -30,22 +30,42 @@ module.exports.getUser = (req, res) => {
 module.exports.createUser = (req, res) => {
   return User.create({...req.body})
     .then(user => res.status(201).send(user))
-    .catch(() => res.status(500).send({message: 'На сервере произошла ошибка'}))
+    .catch(err => {
+        res.status(500).send({message: 'На сервере произошла ошибка'});
+    })
 };
 
 // Обновление данных пользователя
 module.exports.updateUser = (req, res) => {
-  return User.findByIdAndUpdate(req.user._id, {...req.body.name}, {new: true})
+  return User.findByIdAndUpdate(req.user._id,
+    {name: req.body.name, about: req.body.about},
+    {new: true}
+  )
     .then(user => {
       console.log(req.body);
       if(!user) {
-        res.status(404).send({message: 'Пользователь не найден'});
+        res.status(404).send({message: 'Пользователь с таким id не найден'});
       } else {
-        res.status(201).send(user);
+        res.status(200).send(user);
       }
     })
     .catch(() => res.status(500).send({message: 'На сервере произошла ошибка'}))
 };
 
-
+// Обновление аватара пользователя
+module.exports.updateAvatar = (req, res) => {
+  return User.findByIdAndUpdate(req.user._id,
+    {avatar: req.body.avatar},
+    {new: true}
+  )
+    .then(user => {
+      console.log(req.body);
+      if(!user) {
+        res.status(404).send({message: 'Пользователь с таким id не найден'});
+      } else {
+        res.status(200).send(user);
+      }
+    })
+    .catch(() => res.status(500).send({message: 'На сервере произошла ошибка'}))
+};
 

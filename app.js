@@ -18,7 +18,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
 // Подключение роутов
 app.use(routes);
 
