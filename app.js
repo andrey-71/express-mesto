@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 // Мидлвэр для временного решения получения И хранения id пользователя
 app.use((req, res, next) => {
   req.user = {
-    _id: '61ddbe0069dfc16101d36e4b'
+    _id: '61dea19b6226dd51fcc15da9'
   };
 
   next();
@@ -27,7 +27,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 });
 
 app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
+  console.log(`App started on port ${PORT}`);
 });
 
 
