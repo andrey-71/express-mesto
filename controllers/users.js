@@ -18,7 +18,7 @@ module.exports.getUser = (req, res) => {
   return User.findById(req.params.id)
     .then(user => {
       if (!user) {
-        res.status(404).send({message: 'Пользователь с указанным id не найден'});
+        res.status(404).send({message: 'Пользователь по указанному _id не найден'});
       } else {
         res.status(200).send(user);
       }
@@ -32,7 +32,7 @@ module.exports.createUser = (req, res) => {
     .then(user => res.status(201).send(user))
     .catch(err => {
       if(err.name === 'ValidationError') {
-        res.status(400).send({message: 'Переданы некорректные данные'});
+        res.status(400).send({message: 'Переданы некорректные данные при создании пользователя'});
       } else {
         res.status(500).send({message: 'На сервере произошла ошибка'});
       }
@@ -47,14 +47,14 @@ module.exports.updateUser = (req, res) => {
   )
     .then(user => {
       if(!user) {
-        res.status(404).send({message: 'Пользователь с таким id не найден'});
+        res.status(404).send({message: 'Пользователь с указанным _id не найден'});
       } else {
         res.status(200).send(user);
       }
     })
     .catch(err => {
       if(err.name === 'ValidationError') {
-        res.status(400).send({message: 'Переданы некорректные данные'});
+        res.status(400).send({message: 'Переданы некорректные данные при обновлении профиля'});
       } else {
         res.status(500).send({message: 'На сервере произошла ошибка'});
       }
@@ -69,14 +69,14 @@ module.exports.updateAvatar = (req, res) => {
   )
     .then(user => {
       if(!user) {
-        res.status(404).send({message: 'Пользователь с таким id не найден'});
+        res.status(404).send({message: 'Пользователь с указанным _id не найден'});
       } else {
         res.status(200).send(user);
       }
     })
     .catch(err => {
       if(err.name === 'ValidationError') {
-        res.status(400).send({message: 'Переданы некорректные данные'});
+        res.status(400).send({message: 'Переданы некорректные данные при обновлении аватара'});
       } else {
         res.status(500).send({message: 'На сервере произошла ошибка'});
       }

@@ -9,7 +9,7 @@ const app = express();
 app.use(bodyParser.json());
 
 
-// Мидлвэр для временного решения получения И хранения id пользователя
+// Мидлвэр для временного решения хранения id пользователя
 app.use((req, res, next) => {
   req.user = {
     _id: '61dea19b6226dd51fcc15da9'
