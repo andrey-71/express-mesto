@@ -7,16 +7,64 @@
 Серверная часть проекта Mesto для обмена фотографиями.
 
 
+## Функционал
+### Роутинг и запросы:
+* `GET /users` - запрос всех пользователей;
+* `GET /users/:userId` - запрос пользователя по идентификатору;
+* `POST /users` - создание нового пользователя;
+* `PATCH /users/me` - обновление данных профиля;
+* `PATCH /users/me/avatar` - обновление аватара пользователя;
+* `GET /cards` - запрос всез карточек;
+* `POST /cards` - создание новой карточки;
+* `DELETE /cards/:cardId` - удаление карточки по идентификатору;
+* `PUT /cards/:cardId/likes` - постановка лайка;
+* `DELETE /cards/:cardId/likes` - снятие лайка.
 
-## Директории
 
-`/routes` — папка с файлами роутера  
-`/controllers` — папка с файлами контроллеров пользователя и карточки   
-`/models` — папка с файлами описания схем пользователя и карточки  
+* Начальная валидация данных от пользователя;
+* Обработка ошибок.
+
+
+
+## Технологии:
+* Node.js
+* Express.js
+* MongoDB
+
+
+## Инструкция по локальному развертыванию:
+* Клонировать репозиторий:
+  ```
+    git clone https://github.com/andrey-71/express-mesto.git
+  ```
+
+* На компьютере должны быть установлены:
+  * [Node.js](https://nodejs.org/en/download/)
+  * [MongoDB](https://www.mongodb.com/try/download/community?jmp=docs)
+  * `npm i express`
+  * `npm i body-parser`
+
+
+* Запуск сервера
+  ```
+  npm run start
+  ```
+* Запуск сервера с hot-reload
+  ```
+  npm run build
+  ```
+  Дополнительно необходимо установить следующие зависимости:
+  * `npm i nodemon`
+  * `npm i eslint`
+  * `npm i eslint-config-airbnb-base`
+  * `npm i eslint-plugin-import`
+
+## Планы по доработке проекта:
+* Реализовать регистрацию и авторизацию пользователя;
+* Добавить валидацию полей с url.
+
+
+## Требования к проекту:
+* [Чеклист](https://code.s3.yandex.net/web-developer/checklists-pdf/new-program/checklist-13.pdf)
   
-Остальные директории вспомогательные, создаются при необходимости разработчиком
-
-## Запуск проекта
-
-`npm run start` — запускает сервер   
-`npm run dev` — запускает сервер с hot-reload
+  
