@@ -1,18 +1,17 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const routes = require('./routes');
 const mongoose = require('mongoose');
+const routes = require('./routes');
 
-const {PORT = 3000} = process.env;
+const { PORT = 3000 } = process.env;
 const app = express();
 // Сборка данных в JSON-формат
 app.use(bodyParser.json());
 
-
 // Мидлвэр для временного решения хранения id пользователя
 app.use((req, res, next) => {
   req.user = {
-    _id: '61dea19b6226dd51fcc15da9'
+    _id: '61dea19b6226dd51fcc15da9',
   };
 
   next();
@@ -23,11 +22,9 @@ app.use(routes);
 
 // Подключение к БД
 mongoose.connect('mongodb://localhost:27017/mestodb', {
-  useNewUrlParser: true
+  useNewUrlParser: true,
 });
 
 app.listen(PORT, () => {
   console.log(`App started on port ${PORT}`);
 });
-
-
