@@ -32,14 +32,21 @@ module.exports.createCard = (req, res) => {
 // Удаление карточки
 module.exports.deleteCard = (req, res) => {
   return Card.findByIdAndRemove(req.params.id)
+    .orFail(() => {
+      throw new Error('NotFoundError');
+    })
     .then(card => {
-      if(!card) {
-        res.status(404).send({message: "Карточка с указанным id не найдена"});
-      } else {
         res.status(200).send(card);
+    })
+    .catch(err => {
+      if(err.message === 'NotFoundError') {
+        res.status(404).send({message: "Карточка с указанным _id не найдена"});
+      } else if(err.name === 'CastError'){
+        res.status(400).send({message: "Переданы некорректные данные при удалении карточки"});
+      } else {
+        res.status(500).send({message: 'На сервере произошла ошибка'});
       }
     })
-    .catch(() => res.status(500).send({message: 'На сервере произошла ошибка'}))
 };
 
 // Постановка лайка
@@ -49,15 +56,17 @@ module.exports.likeCard = (req, res) => {
     {$addToSet: {likes: req.user._id}},
     {new: true}
   )
+    .orFail(() => {
+      throw new Error('NotFoundError');
+    })
     .then(card => {
-      if(!card) {
-        res.status(404).send({message: "Передан несуществующий id карточки"});
-      } else {
         res.status(200).send(card);
-      }
     })
     .catch(err => {
-      if(err.name === 'ValidationError') {
+      if(err.message === 'NotFoundError') {
+        res.status(404).send({message: 'Передан несуществующий _id карточки'});
+      }
+      else if(err.name === 'CastError') {
         res.status(400).send({message: 'Переданы некорректные данные для постановки лайка'});
       } else {
         res.status(500).send({message: 'На сервере произошла ошибка'});
@@ -73,17 +82,16 @@ module.exports.dislikeCard = (req, res) => {
     {new: true}
   )
     .then(card => {
-      if(!card) {
-        res.status(404).send({message: "Передан несуществующий id карточки"});
-      } else {
         res.status(200).send(card);
-      }
     })
     .catch(err => {
-      if(err.name === 'ValidationError') {
-        res.status(400).send({message: "Переданы некорректные данные для снятия лайка"});
+      if(err.message === 'NotFoundError') {
+        res.status(404).send({message: 'Передан несуществующий _id карточки'});
+      }
+      else if(err.name === 'CastError') {
+        res.status(400).send({message: 'Переданы некорректные данные для снятия лайка'});
       } else {
-        res.status(500).send({message: "На сервере произошла ошибка"});
+        res.status(500).send({message: 'На сервере произошла ошибка'});
       }
     })
 };

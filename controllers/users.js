@@ -16,14 +16,21 @@ module.exports.getUsers = (req, res) => {
 // Получение пользователя по id
 module.exports.getUser = (req, res) => {
   return User.findById(req.params.id)
+    .orFail(() => {
+      throw new Error('NotFoundError');
+    })
     .then(user => {
-      if (!user) {
-        res.status(404).send({message: 'Пользователь по указанному _id не найден'});
-      } else {
         res.status(200).send(user);
+    })
+    .catch(err => {
+      if(err.message === 'NotFoundError') {
+        res.status(404).send({message: 'Пользователь по указанному _id не найден'});
+      } else if (err.name === 'CastError') {
+        res.status(400).send({message: 'Переданы некорректные данные при получении пользователя по _id'});
+      } else {
+        res.status(500).send({message: 'На сервере произошла ошибка'});
       }
     })
-    .catch(() => res.status(500).send({message: 'На сервере произошла ошибка'}))
 };
 
 // Создание нового пользователя
@@ -45,15 +52,16 @@ module.exports.updateUser = (req, res) => {
     {name: req.body.name, about: req.body.about},
     {new: true, runValidators: true}
   )
+    .orFail(() => {
+      throw new Error('NotFoundError');
+    })
     .then(user => {
-      if(!user) {
-        res.status(404).send({message: 'Пользователь с указанным _id не найден'});
-      } else {
         res.status(200).send(user);
-      }
     })
     .catch(err => {
-      if(err.name === 'ValidationError') {
+      if(err.message === 'NotFoundError') {
+        res.status(404).send({message: 'Пользователь с указанным _id не найден'});
+      } else if(err.name === 'ValidationError') {
         res.status(400).send({message: 'Переданы некорректные данные при обновлении профиля'});
       } else {
         res.status(500).send({message: 'На сервере произошла ошибка'});
@@ -67,15 +75,16 @@ module.exports.updateAvatar = (req, res) => {
     {avatar: req.body.avatar},
     {new: true, runValidators: true}
   )
+    .orFail(() => {
+      throw new Error('NotFoundError');
+    })
     .then(user => {
-      if(!user) {
-        res.status(404).send({message: 'Пользователь с указанным _id не найден'});
-      } else {
         res.status(200).send(user);
-      }
     })
     .catch(err => {
-      if(err.name === 'ValidationError') {
+      if(err.message === 'NotFoundError') {
+        res.status(404).send({message: 'Пользователь с указанным _id не найден'});
+      } else if(err.name === 'ValidationError') {
         res.status(400).send({message: 'Переданы некорректные данные при обновлении аватара'});
       } else {
         res.status(500).send({message: 'На сервере произошла ошибка'});
