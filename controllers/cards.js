@@ -28,3 +28,16 @@ module.exports.createCard = (req, res) => {
       }
     })
 }
+
+// Удаление карточки
+module.exports.deleteCard = (req, res) => {
+  return Card.findByIdAndRemove(req.params.id)
+    .then(card => {
+      if(!card) {
+        res.status(404).send({message: "Карточка с указанным id не найдена"})
+      } else {
+        res.status(200).send(card);
+      }
+    })
+    .catch(() => res.status(500).send({message: 'На сервере произошла ошибка'}))
+}
