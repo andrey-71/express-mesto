@@ -3,7 +3,7 @@ const User = require('../models/user');
 // Получение всех пользователей
 module.exports.getUsers = (req, res) => {
   return User.find({})
-    .then((users) => {
+    .then(users => {
       if(users.length === 0) {
         res.status(404).send({message: 'Пользователи отсутствуют'});
         return;
@@ -16,7 +16,7 @@ module.exports.getUsers = (req, res) => {
 // Получение пользователя по id
 module.exports.getUser = (req, res) => {
   return User.findById(req.params.id)
-    .then((user) => {
+    .then(user => {
       if (!user) {
         res.status(404).send({message: 'Пользователь с таким id не найден'});
       } else {
