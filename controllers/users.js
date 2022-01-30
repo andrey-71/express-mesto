@@ -1,3 +1,4 @@
+const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require('../utils/errors');
 
@@ -31,15 +32,24 @@ module.exports.getUser = (req, res) => User.findById(req.params.id)
   });
 
 // Создание нового пользователя
-module.exports.createUser = (req, res) => User.create({ ...req.body })
-  .then((user) => res.status(201).send(user))
-  .catch((err) => {
-    if (err.name === 'ValidationError') {
-      res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
-    } else {
-      res.status(INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
-    }
-  });
+module.exports.createUser = (req, res) => {
+  bcrypt.hash(req.body.password, 10)
+    .then(hash => User.create({
+      name: req.body.name,
+      about: req.body.about,
+      avatar: req.body.avatar,
+      email: req.body.email,
+      password: hash,
+    }))
+    .then((user) => res.status(201).send(user))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(BAD_REQUEST).send({message: 'Переданы некорректные данные при создании пользователя'});
+      } else {
+        res.status(INTERNAL_SERVER_ERROR).send({message: 'На сервере произошла ошибка'});
+      }
+    });
+}
 
 // Обновление данных пользователя
 module.exports.updateUser = (req, res) => User.findByIdAndUpdate(
