@@ -1,6 +1,55 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { BAD_REQUEST, NOT_FOUND, CONFLICT, INTERNAL_SERVER_ERROR } = require('../utils/errors');
+
+// Регистрация пользователя
+module.exports.createUser = (req, res) => {
+  bcrypt.hash(req.body.password, 10)
+    .then((hash) => User.create({
+      ...req.body,
+      password: hash,
+    }))
+    .then((user) => res.status(201).send(user))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(BAD_REQUEST).send({message: 'Переданы некорректные данные при создании пользователя'});
+      } else if (err.name === 'MongoServerError' && err.code === 11000) {
+        res.status(CONFLICT).send({message: 'Пользователь с указанным email уже существует'});
+      } else {
+        res.status(INTERNAL_SERVER_ERROR).send({message: 'На сервере произошла ошибка'});
+      }
+    });
+}
+
+// Авторизация пользователя
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .orFail(() => {
+      throw new Error('NotFoundError');
+    })
+    .then((user) => {
+      // Создание токена
+      const token = jwt.sign(
+        { _id: user._id },
+        'some-secret-key',
+        { expiresIn: '7d' }
+      );
+
+      res.status(200).send(token);
+    })
+    .catch((err) => {
+      if (err.message === 'NotFoundError') {
+        res.status(NOT_FOUND).send({ message: 'Пользователь с указанным email или паролем не найден' });
+      } else if (err.name === 'ValidationError') {
+        res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при авторизации пользователя' });
+      } else {
+        res.status(INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
+      }
+    })
+}
 
 // Получение всех пользователей
 module.exports.getUsers = (req, res) => User.find({})
@@ -30,28 +79,6 @@ module.exports.getUser = (req, res) => User.findById(req.params.id)
       res.status(INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
     }
   });
-
-// Создание нового пользователя
-module.exports.createUser = (req, res) => {
-  bcrypt.hash(req.body.password, 10)
-    .then(hash => User.create({
-      name: req.body.name,
-      about: req.body.about,
-      avatar: req.body.avatar,
-      email: req.body.email,
-      password: hash,
-    }))
-    .then((user) => res.status(201).send(user))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({message: 'Переданы некорректные данные при создании пользователя'});
-      } else if (err.name === 'MongoServerError' && err.code === 11000) {
-        res.status(CONFLICT).send({message: 'Пользователь с указанным email уже существует'});
-      } else {
-        res.status(INTERNAL_SERVER_ERROR).send({message: 'На сервере произошла ошибка'});
-      }
-    });
-}
 
 // Обновление данных пользователя
 module.exports.updateUser = (req, res) => User.findByIdAndUpdate(
