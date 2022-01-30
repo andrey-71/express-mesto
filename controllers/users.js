@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
-const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require('../utils/errors');
+const { BAD_REQUEST, NOT_FOUND, CONFLICT, INTERNAL_SERVER_ERROR } = require('../utils/errors');
 
 // Получение всех пользователей
 module.exports.getUsers = (req, res) => User.find({})
@@ -45,6 +45,8 @@ module.exports.createUser = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(BAD_REQUEST).send({message: 'Переданы некорректные данные при создании пользователя'});
+      } else if (err.name === 'MongoServerError' && err.code === 11000) {
+        res.status(CONFLICT).send({message: 'Пользователь с указанным email уже существует'});
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({message: 'На сервере произошла ошибка'});
       }
