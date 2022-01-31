@@ -5,11 +5,11 @@ const { BAD_REQUEST, NOT_FOUND, CONFLICT, INTERNAL_SERVER_ERROR } = require('../
 
 // Регистрация пользователя
 module.exports.createUser = (req, res) => {
-  bcrypt.hash(req.body.password, 10)
-    .then((hash) => User.create({
-      ...req.body,
-      password: hash,
-    }))
+  const { name, about, avatar, email, password} = req.body;
+
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({ name, about, avatar, email, password: hash, })
+    )
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -38,7 +38,12 @@ module.exports.login = (req, res) => {
         { expiresIn: '7d' }
       );
 
-      res.status(200).send(token);
+      // Запись токена в куки
+      res.status(200).cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+        sameSite: true,
+      });
     })
     .catch((err) => {
       if (err.message === 'NotFoundError') {

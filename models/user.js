@@ -38,13 +38,13 @@ userSchema.statics.findUserByCredentials = (email, password) => {
   return this.findOne({ email })
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error());
+        return Promise.reject(new Error()); // это работает?
       }
 
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return Promise.reject(new Error());
+            return Promise.reject(new Error()); // это работает?
           }
 
           return user;
