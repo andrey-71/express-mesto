@@ -1,9 +1,10 @@
 const express = require('express');
+require('dotenv').config();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const routes = require('./routes');
+const { PORT, DB_ADDRESS } = require('./utils/config');
 
-const { PORT = 3000 } = process.env;
 const app = express();
 // Сборка данных в JSON-формат
 app.use(bodyParser.json());
@@ -21,7 +22,7 @@ app.use((req, res, next) => {
 app.use(routes);
 
 // Подключение к БД
-mongoose.connect('mongodb://localhost:27017/mestodb', {
+mongoose.connect(`${DB_ADDRESS}`, {
   useNewUrlParser: true,
 });
 

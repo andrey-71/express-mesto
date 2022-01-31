@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { BAD_REQUEST, NOT_FOUND, CONFLICT, INTERNAL_SERVER_ERROR } = require('../utils/errors');
+const { JWT_SECRET } = require('../utils/config');
 
 // Регистрация пользователя
 module.exports.createUser = (req, res) => {
@@ -34,7 +35,7 @@ module.exports.login = (req, res) => {
       // Создание токена
       const token = jwt.sign(
         { _id: user._id },
-        'some-secret-key',
+        `${JWT_SECRET}`,
         { expiresIn: '7d' }
       );
 
