@@ -4,10 +4,15 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const routes = require('./routes');
 const { PORT, DB_ADDRESS } = require('./utils/config');
+const { createUser, login } = require('./controllers/users');
 
 const app = express();
 // Сборка данных в JSON-формат
 app.use(bodyParser.json());
+
+// Роуты регистрации и авторизации (незащищенные)
+app.post('/signup', createUser);
+app.post('/signin', login);
 
 // Мидлвэр для временного решения хранения id пользователя
 app.use((req, res, next) => {
@@ -18,7 +23,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Подключение роутов
+// Остальные роуты (защищенные)
 app.use(routes);
 
 // Подключение к БД

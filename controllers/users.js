@@ -9,10 +9,11 @@ module.exports.createUser = (req, res) => {
   const { name, about, avatar, email, password} = req.body;
 
   bcrypt.hash(password, 10)
-    .then((hash) => User.create({ name, about, avatar, email, password: hash, })
+    // хэширование пароля
+    .then(hash => User.create({ name, about, avatar, email, password: hash, })
     )
-    .then((user) => res.status(201).send(user))
-    .catch((err) => {
+    .then(user => res.status(201).send(user))
+    .catch(err => {
       if (err.name === 'ValidationError') {
         res.status(BAD_REQUEST).send({message: 'Переданы некорректные данные при создании пользователя'});
       } else if (err.name === 'MongoServerError' && err.code === 11000) {
@@ -28,10 +29,7 @@ module.exports.login = (req, res) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
-    .orFail(() => {
-      throw new Error('NotFoundError');
-    })
-    .then((user) => {
+    .then(user => {
       // Создание токена
       const token = jwt.sign(
         { _id: user._id },
@@ -40,26 +38,28 @@ module.exports.login = (req, res) => {
       );
 
       // Запись токена в куки
-      res.status(200).cookie('jwt', token, {
+      res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
         sameSite: true,
-      });
+      })
+        .send(user);
     })
-    .catch((err) => {
-      if (err.message === 'NotFoundError') {
-        res.status(NOT_FOUND).send({ message: 'Пользователь с указанным email или паролем не найден' });
-      } else if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при авторизации пользователя' });
-      } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
-      }
+    .catch(err => {
+      res.status(401).send({ message: err.message });
+      // if (err.message === 'NotFoundError') {
+      //   res.status(NOT_FOUND).send({ message: 'Пользователь с указанным email или паролем не найден' });
+      // } else if (err.name === 'ValidationError') {
+      //   res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при авторизации пользователя' });
+      // } else {
+      //   res.status(INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
+      // }
     })
 }
 
 // Получение всех пользователей
 module.exports.getUsers = (req, res) => User.find({})
-  .then((users) => {
+  .then(users => {
     if (users.length === 0) {
       res.status(NOT_FOUND).send({ message: 'Пользователи отсутствуют' });
       return;
@@ -73,10 +73,10 @@ module.exports.getUser = (req, res) => User.findById(req.params.id)
   .orFail(() => {
     throw new Error('NotFoundError');
   })
-  .then((user) => {
+  .then(user => {
     res.status(200).send(user);
   })
-  .catch((err) => {
+  .catch(err => {
     if (err.message === 'NotFoundError') {
       res.status(NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден' });
     } else if (err.name === 'CastError') {
@@ -95,10 +95,10 @@ module.exports.updateUser = (req, res) => User.findByIdAndUpdate(
   .orFail(() => {
     throw new Error('NotFoundError');
   })
-  .then((user) => {
+  .then(user => {
     res.status(200).send(user);
   })
-  .catch((err) => {
+  .catch(err => {
     if (err.message === 'NotFoundError') {
       res.status(NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
     } else if (err.name === 'ValidationError') {
@@ -120,7 +120,7 @@ module.exports.updateAvatar = (req, res) => User.findByIdAndUpdate(
   .then((user) => {
     res.status(200).send(user);
   })
-  .catch((err) => {
+  .catch(err => {
     if (err.message === 'NotFoundError') {
       res.status(NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
     } else if (err.name === 'ValidationError') {
