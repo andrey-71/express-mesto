@@ -86,6 +86,24 @@ module.exports.getUser = (req, res) => User.findById(req.params.id)
     }
   });
 
+// Получение текущего пользователя
+module.exports.getCurrentUser = (req, res) => User.findById(req.user._id)
+  .orFail(() => {
+    throw new Error('NotFoundError');
+  })
+  .then(user => {
+    res.status(200).send(user);
+  })
+  .catch(err => {
+    if (err.message === 'NotFoundError') {
+      res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
+    } else if (err.name === 'CastError') {
+      res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при получении текущего пользователя' });
+    } else {
+      res.status(INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
+    }
+  });
+
 // Обновление данных пользователя
 module.exports.updateUser = (req, res) => User.findByIdAndUpdate(
   req.user._id,
