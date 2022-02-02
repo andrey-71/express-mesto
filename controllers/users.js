@@ -43,7 +43,7 @@ module.exports.login = (req, res) => {
         httpOnly: true,
         sameSite: true,
       })
-        .send(user);
+        .send({ data: user.toJSON() });
     })
     .catch(err => {
       res.status(401).send({ message: err.message });
