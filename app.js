@@ -19,25 +19,11 @@ app.use(bodyParser.json());
 // Парсер кук
 app.use(cookieParser());
 
-app.get('/test', (req, res) => {
-  console.log(req.cookies.jwt);
-})
-
 // Роуты регистрации и авторизации (незащищенные)
 app.post('/signup', createUser);
 app.post('/signin', login);
-
+// Мидлвара авторизации
 app.use(auth);
-
-// Мидлвэр для временного решения хранения id пользователя
-// app.use((req, res, next) => {
-//   req.user = {
-//     _id: '61dea19b6226dd51fcc15da9',
-//   };
-//
-//   next();
-// });
-
 // Остальные роуты (защищенные)
 app.use(routes);
 
