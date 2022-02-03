@@ -34,7 +34,7 @@ module.exports.deleteCard = (req, res, next) => {
       next(new NotFoundError('Карточка с указанным _id не найдена'));
     })
     .then((card) => {
-      if(card.owner.toString() === req.user._id) {
+      if (card.owner.toString() === req.user._id) {
         Card.findByIdAndRemove(req.params.id)
           .then(() => res.status(200).send(card));
       } else {
@@ -47,7 +47,7 @@ module.exports.deleteCard = (req, res, next) => {
       }
     })
     .catch(next);
-}
+};
 
 // Постановка лайка
 module.exports.likeCard = (req, res, next) => {
@@ -88,5 +88,5 @@ module.exports.dislikeCard = (req, res, next) => {
         throw new BadRequestError('Переданы некорректные данные при снятии лайка');
       }
     })
-      .catch(next);
+    .catch(next);
 };
