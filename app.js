@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const { PORT, DB_ADDRESS } = require('./utils/config');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const errorHandler = require('./middlewares/error-handler');
 
 const app = express();
 // Подключение к БД
@@ -22,10 +23,13 @@ app.use(cookieParser());
 // Роуты регистрации и авторизации (незащищенные)
 app.post('/signup', createUser);
 app.post('/signin', login);
-// Мидлвара авторизации
+// Мидлвэр авторизации
 app.use(auth);
 // Остальные роуты (защищенные)
 app.use(routes);
+
+// Обработчик ошибок
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`App started on port ${PORT}`);
