@@ -46,6 +46,7 @@ module.exports.login = (req, res) => {
         .send({ data: user.toJSON() });
     })
     .catch(err => {
+      console.log(err);
       res.status(401).send({ message: err.message });
       // if (err.message === 'NotFoundError') {
       //   res.status(NOT_FOUND).send({ message: 'Пользователь с указанным email или паролем не найден' });
