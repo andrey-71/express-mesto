@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const isEmail = require('validator/lib/isEmail');
+const NotFoundError = require('../errors/NotFoundError');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -41,7 +42,7 @@ userSchema.statics.findUserByCredentials = function (email, password) {
     .select('+password')
     .then(user => {
       if (!user) {
-        throw new Error('Пользователь не найден');
+        throw new NotFoundError('Пользователь c таким email не найден');
       }
 
       return bcrypt.compare(password, user.password)

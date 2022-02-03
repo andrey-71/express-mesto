@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const NotFoundError = require('../errors/NotFoundError');
 const { BAD_REQUEST, NOT_FOUND, CONFLICT, INTERNAL_SERVER_ERROR } = require('../utils/errors');
 const { JWT_SECRET } = require('../utils/config');
 
@@ -21,7 +22,8 @@ module.exports.createUser = (req, res) => {
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({message: 'На сервере произошла ошибка'});
       }
-    });
+    })
+    .catch(next);
 }
 
 // Авторизация пользователя
@@ -45,9 +47,9 @@ module.exports.login = (req, res) => {
       })
         .send({ data: user.toJSON() });
     })
-    .catch(err => {
-      console.log(err);
-      res.status(401).send({ message: err.message });
+    // .catch(err => {res(err);
+    //   console.log(err);
+      // res.status(401).send({ message: err.message });
       // if (err.message === 'NotFoundError') {
       //   res.status(NOT_FOUND).send({ message: 'Пользователь с указанным email или паролем не найден' });
       // } else if (err.name === 'ValidationError') {
@@ -55,7 +57,8 @@ module.exports.login = (req, res) => {
       // } else {
       //   res.status(INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       // }
-    })
+    // })
+    .catch(next);
 }
 
 // Получение всех пользователей
@@ -67,43 +70,41 @@ module.exports.getUsers = (req, res) => User.find({})
     }
     res.status(200).send(users);
   })
-  .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' }));
+  .catch(next);
 
 // Получение пользователя по id
 module.exports.getUser = (req, res) => User.findById(req.params.id)
   .orFail(() => {
-    throw new Error('NotFoundError');
+    throw new NotFoundError('Пользователь по указанному _id не найден');
   })
   .then(user => {
     res.status(200).send(user);
   })
   .catch(err => {
-    if (err.message === 'NotFoundError') {
-      res.status(NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден' });
-    } else if (err.name === 'CastError') {
+    if (err.name === 'CastError') {
       res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при получении пользователя по _id' });
     } else {
       res.status(INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
     }
-  });
+  })
+  .catch(next);
 
 // Получение текущего пользователя
 module.exports.getCurrentUser = (req, res) => User.findById(req.user._id)
   .orFail(() => {
-    throw new Error('NotFoundError');
+    throw new NotFoundError('Пользователь не найден');
   })
   .then(user => {
     res.status(200).send(user);
   })
   .catch(err => {
-    if (err.message === 'NotFoundError') {
-      res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
-    } else if (err.name === 'CastError') {
+    if (err.name === 'CastError') {
       res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при получении текущего пользователя' });
     } else {
       res.status(INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
     }
-  });
+  })
+  .catch(next);
 
 // Обновление данных пользователя
 module.exports.updateUser = (req, res) => User.findByIdAndUpdate(
@@ -112,20 +113,19 @@ module.exports.updateUser = (req, res) => User.findByIdAndUpdate(
   { new: true, runValidators: true },
 )
   .orFail(() => {
-    throw new Error('NotFoundError');
+    throw new NotFoundError('Пользователь с указанным _id не найден');
   })
   .then(user => {
     res.status(200).send(user);
   })
   .catch(err => {
-    if (err.message === 'NotFoundError') {
-      res.status(NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
-    } else if (err.name === 'ValidationError') {
+    if (err.name === 'ValidationError') {
       res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении профиля' });
     } else {
       res.status(INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
     }
-  });
+  })
+  .catch(next);
 
 // Обновление аватара пользователя
 module.exports.updateAvatar = (req, res) => User.findByIdAndUpdate(
@@ -134,17 +134,16 @@ module.exports.updateAvatar = (req, res) => User.findByIdAndUpdate(
   { new: true, runValidators: true },
 )
   .orFail(() => {
-    throw new Error('NotFoundError');
+    throw new NotFoundError('Пользователь с указанным _id не найден');
   })
   .then((user) => {
     res.status(200).send(user);
   })
   .catch(err => {
-    if (err.message === 'NotFoundError') {
-      res.status(NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
-    } else if (err.name === 'ValidationError') {
+    if (err.name === 'ValidationError') {
       res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении аватара' });
     } else {
       res.status(INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
     }
-  });
+  })
+  .catch(next);
