@@ -27,7 +27,7 @@ module.exports.createUser = (req, res) => {
 }
 
 // Авторизация пользователя
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
