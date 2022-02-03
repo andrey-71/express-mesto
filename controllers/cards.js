@@ -28,26 +28,24 @@ module.exports.createCard = (req, res, next) => Card.create({
   .catch(next);
 
 // Удаление карточки
-module.exports.deleteCard = (req, res, next) => {
-  return Card.findById(req.params.id)
-    .orFail(() => {
-      next(new NotFoundError('Карточка с указанным _id не найдена'));
-    })
-    .then((card) => {
-      if (card.owner.toString() === req.user._id) {
-        Card.findByIdAndRemove(req.params.id)
-          .then(() => res.status(200).send(card));
-      } else {
-        next(new ForBiddenError('Вы можете удалить только свою карточку'));
-      }
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new BadRequestError('Переданы некорректные данные при удалении карточки');
-      }
-    })
-    .catch(next);
-};
+module.exports.deleteCard = (req, res, next) => Card.findById(req.params.id)
+  .orFail(() => {
+    next(new NotFoundError('Карточка с указанным _id не найдена'));
+  })
+  .then((card) => {
+    if (card.owner.toString() === req.user._id) {
+      Card.findByIdAndRemove(req.params.id)
+        .then(() => res.status(200).send(card));
+    } else {
+      next(new ForBiddenError('Вы можете удалить только свою карточку'));
+    }
+  })
+  .catch((err) => {
+    if (err.name === 'CastError') {
+      throw new BadRequestError('Переданы некорректные данные при удалении карточки');
+    }
+  })
+  .catch(next);
 
 // Постановка лайка
 module.exports.likeCard = (req, res, next) => {

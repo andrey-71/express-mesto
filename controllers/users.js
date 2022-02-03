@@ -8,11 +8,15 @@ const { JWT_SECRET } = require('../utils/config');
 
 // Регистрация пользователя
 module.exports.createUser = (req, res, next) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
   bcrypt.hash(password, 10)
     // хэширование пароля
-    .then((hash) => User.create({ name, about, avatar, email, password: hash }))
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash,
+    }))
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
