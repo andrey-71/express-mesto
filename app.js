@@ -4,10 +4,12 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const routes = require('./routes');
+const { errors } = require('celebrate');
 const { PORT, DB_ADDRESS } = require('./utils/config');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const errorHandler = require('./middlewares/error-handler');
+const { signupValidation, signinValidation } = require('./middlewares/joi-validation');
 
 const app = express();
 // Подключение к БД
@@ -21,13 +23,15 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 // Роуты регистрации и авторизации (незащищенные)
-app.post('/signup', createUser);
-app.post('/signin', login);
+app.post('/signup', signupValidation, createUser);
+app.post('/signin', signinValidation, login);
 // Мидлвэр авторизации
 app.use(auth);
 // Остальные роуты (защищенные)
 app.use(routes);
 
+// Обработчик ошибок celebrate
+app.use(errors());
 // Обработчик ошибок
 app.use(errorHandler);
 
