@@ -6,9 +6,6 @@ const NotFoundError = require('../errors/NotFoundError');
 // Получение всех карточек
 module.exports.getCards = (req, res, next) => Card.find({})
   .then((cards) => {
-    if (cards.length === 0) {
-      throw new NotFoundError('Карточки отсутствуют');
-    }
     res.status(200).send(cards);
   })
   .catch(next);
@@ -22,10 +19,11 @@ module.exports.createCard = (req, res, next) => Card.create({
   .then((card) => res.status(201).send(card))
   .catch((err) => {
     if (err.name === 'ValidationError') {
-      throw new BadRequestError('Переданы некорректные данные при создании карточки');
+      next(new BadRequestError('Переданы некорректные данные при создании карточки'));
+    } else {
+      next(err);
     }
-  })
-  .catch(next);
+  });
 
 // Удаление карточки
 module.exports.deleteCard = (req, res, next) => Card.findById(req.params.id)
@@ -34,7 +32,7 @@ module.exports.deleteCard = (req, res, next) => Card.findById(req.params.id)
   })
   .then((card) => {
     if (card.owner.toString() === req.user._id) {
-      Card.findByIdAndRemove(req.params.id)
+      return Card.findByIdAndRemove(req.params.id)
         .then(() => res.status(200).send(card));
     } else {
       next(new ForBiddenError('Вы можете удалить только свою карточку'));
@@ -42,10 +40,11 @@ module.exports.deleteCard = (req, res, next) => Card.findById(req.params.id)
   })
   .catch((err) => {
     if (err.name === 'CastError') {
-      throw new BadRequestError('Переданы некорректные данные при удалении карточки');
+      next(new BadRequestError('Переданы некорректные данные при удалении карточки'));
+    } else {
+      next(err);
     }
-  })
-  .catch(next);
+  });
 
 // Постановка лайка
 module.exports.likeCard = (req, res, next) => {
@@ -62,10 +61,11 @@ module.exports.likeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError('Переданы некорректные данные при постановке лайка');
+        next(new BadRequestError('Переданы некорректные данные при постановке лайка'));
+      } else {
+        next(err);
       }
-    })
-    .catch(next);
+    });
 };
 
 // Снятие лайка
@@ -83,8 +83,9 @@ module.exports.dislikeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError('Переданы некорректные данные при снятии лайка');
+        next(new BadRequestError('Переданы некорректные данные при снятии лайка'));
+      } else {
+        next(err);
       }
-    })
-    .catch(next);
+    });
 };
